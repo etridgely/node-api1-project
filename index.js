@@ -27,5 +27,51 @@ server.get('/hubs', (req, res) => {
 });
 
 //create a hub
-server.post('/hubs')
+server.post('/hubs', (req, res) => {
+    const hubInfo = req.body;
+    console.log('body:', hubInfo);
 
+    db.add(hubInfo)
+      .then((hub) => {
+        res.status(201).json({ success: true, hub });
+      })
+      .catch((err) => {
+        res.status(500).json( { success: false, err });    
+      })
+});
+
+//delete a hub
+server.delete('/hubs/:id', (req, res) => {
+    const { id } = req.params;
+
+    db.remove(id)
+        .then(deleteHub => {
+            if (deleteHub) {
+                res.status(204).end();
+            } else {
+                res.status(404).json({ message: `I could not find id=${id}`});
+            }
+        });
+});
+
+server.put('/hubs/:id', (req, res) =>{
+    const {id} = req.params;
+    const hubInfo = req.body;
+    //check here -- it's possible something was changed
+    db.update(id, hubInfo)
+      .then(hub => {
+          if (hub) {
+              res.status(200).json({success: true, hub });
+          } else {
+              res.status(404).json({success: false, message: `id ${id} does not exist` });
+          }
+      })
+      .catch(err => {
+          res.status(500).json({ success: false, err});
+      });
+});
+
+server.get('/hubs/:id', (req, res) => {
+    //do your thing here
+});
+//console.log('hello world');
